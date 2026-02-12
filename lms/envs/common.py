@@ -60,6 +60,7 @@ from enterprise.constants import (
     PROVISIONING_PENDING_ENTERPRISE_CUSTOMER_ADMIN_ROLE,
     DEFAULT_ENTERPRISE_ENROLLMENT_INTENTIONS_ROLE,
 )
+from openedx_learning.api.django import openedx_learning_apps_to_install
 
 from openedx.core.lib.derived import Derived
 from openedx.envs.common import *  # pylint: disable=wildcard-import
@@ -278,6 +279,8 @@ ENABLED_PAYMENT_REPORTS = [
     "university_revenue_share",
     "certificate_status"
 ]
+
+ENABLE_MAX_FAILED_LOGIN_ATTEMPTS = True
 
 # Hide any Personally Identifiable Information from application logs
 SQUELCH_PII_IN_LOGS = True
@@ -2017,14 +2020,8 @@ INSTALLED_APPS = [
 
     'openedx_events',
 
-    # Learning Core Apps, used by v2 content libraries (content_libraries app)
-    "openedx_learning.apps.authoring.collections",
-    "openedx_learning.apps.authoring.components",
-    "openedx_learning.apps.authoring.contents",
-    "openedx_learning.apps.authoring.publishing",
-    "openedx_learning.apps.authoring.units",
-    "openedx_learning.apps.authoring.subsections",
-    "openedx_learning.apps.authoring.sections",
+    # Learning Core apps that power libraries
+    *openedx_learning_apps_to_install(),
 ]
 
 # Add LMS specific optional apps
