@@ -51,10 +51,8 @@ SRT_content = textwrap.dedent("""
 
 if settings.USE_EXTRACTED_VIDEO_BLOCK:
     path_video_handlers = 'xblocks_contrib.video.video_handlers'
-    path_transcripts_utils = 'xblocks_contrib.video.video_transcripts_utils'
 else:
     path_video_handlers = 'xmodule.video_block.video_handlers'
-    path_transcripts_utils = 'openedx.core.djangoapps.video_config.transcripts_utils'
 
 
 def _create_srt_file(content=None):
@@ -335,7 +333,7 @@ class TestTranscriptAvailableTranslationsDispatch(TestVideo):  # lint-amnesty, p
         assert sorted(json.loads(response.body.decode('utf-8'))) == sorted(['en', 'uk'])
 
     @patch('openedx.core.djangoapps.video_config.transcripts_utils.get_video_transcript_content')
-    @patch(f'{path_transcripts_utils}.get_available_transcript_languages')
+    @patch('edxval.api.get_available_transcript_languages')
     @ddt.data(
         (
             ['en', 'uk', 'ro'],
