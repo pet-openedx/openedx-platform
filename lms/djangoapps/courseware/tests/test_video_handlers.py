@@ -49,10 +49,7 @@ SRT_content = textwrap.dedent("""
         Привіт, edX вітає вас.
     """)
 
-if settings.USE_EXTRACTED_VIDEO_BLOCK:
-    path_video_handlers = 'xblocks_contrib.video.video_handlers'
-else:
-    path_video_handlers = 'xmodule.video_block.video_handlers'
+path_video_handlers = 'xblocks_contrib.video.video_handlers'
 
 
 def _create_srt_file(content=None):
