@@ -2296,7 +2296,7 @@ xblock-utils==4.0.0
     #   edx-sga
     #   xblock-poll
 # xblocks-contrib==0.10.0
-git+https://github.com/openedx/xblocks-contrib.git@discussion-block-extracted#egg=xblocks-contrib
+git+https://github.com/openedx/xblocks-contrib.git@complete-discussion-block-extracted#egg=xblocks-contrib
     # via
     #   -r requirements/edx/doc.txt
     #   -r requirements/edx/testing.txt
