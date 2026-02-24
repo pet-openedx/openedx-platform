@@ -834,9 +834,7 @@ class ProblemBlockTest(unittest.TestCase):  # pylint: disable=too-many-public-me
 
     @patch("xblocks_contrib.problem.capa.correctmap.CorrectMap.is_correct")
     @patch("xmodule.capa_block.ProblemBlock.get_problem_html")
-    def test_submit_problem_with_grading_method_disable(
-        self, mock_html: Mock, mock_is_correct: Mock
-    ):
+    def test_submit_problem_with_grading_method_disable(self, mock_html: Mock, mock_is_correct: Mock):
         """
         Test that without a specific grading method, the score behaves as
         standard (Last Attempt).
@@ -1226,7 +1224,9 @@ class ProblemBlockTest(unittest.TestCase):  # pylint: disable=too-many-public-me
 
         # Simulate that the problem is queued
         multipatch = patch.multiple(
-            "xblocks_contrib.problem.capa.capa_problem.LoncapaProblem", is_queued=DEFAULT, get_recentmost_queuetime=DEFAULT
+            "xblocks_contrib.problem.capa.capa_problem.LoncapaProblem",
+            is_queued=DEFAULT,
+            get_recentmost_queuetime=DEFAULT,
         )
         with multipatch as values:
             values["is_queued"].return_value = True
@@ -1582,7 +1582,9 @@ class ProblemBlockTest(unittest.TestCase):  # pylint: disable=too-many-public-me
 
         # Simulate that all answers are marked correct, no matter
         # what the input is, by patching LoncapaResponse.evaluate_answers()
-        with patch("xblocks_contrib.problem.capa.responsetypes.LoncapaResponse.evaluate_answers") as mock_evaluate_answers:
+        with patch(
+            "xblocks_contrib.problem.capa.responsetypes.LoncapaResponse.evaluate_answers"
+        ) as mock_evaluate_answers:
             mock_evaluate_answers.return_value = CorrectMap(
                 answer_id=CapaFactory.answer_key(),
                 correctness="correct",
@@ -1652,7 +1654,9 @@ class ProblemBlockTest(unittest.TestCase):  # pylint: disable=too-many-public-me
 
         # Simulate that all answers are marked incorrect, no matter
         # what the input is, by patching LoncapaResponse.evaluate_answers()
-        with patch("xblocks_contrib.problem.capa.responsetypes.LoncapaResponse.evaluate_answers") as mock_evaluate_answers:
+        with patch(
+            "xblocks_contrib.problem.capa.responsetypes.LoncapaResponse.evaluate_answers"
+        ) as mock_evaluate_answers:
             mock_evaluate_answers.return_value = CorrectMap(CapaFactory.answer_key(), "incorrect")
             block.rescore(only_if_higher=False)
 
@@ -1732,9 +1736,7 @@ class ProblemBlockTest(unittest.TestCase):  # pylint: disable=too-many-public-me
         block.grading_method = "average_score"
         block.rescore(only_if_higher=False)
 
-        mock_publish_grade.assert_called_with(
-            score=Score(raw_earned=0.33, raw_possible=1), only_if_higher=False
-        )
+        mock_publish_grade.assert_called_with(score=Score(raw_earned=0.33, raw_possible=1), only_if_higher=False)
 
     @patch("xmodule.capa_block.ProblemBlock.publish_grade")
     def test_rescore_problem_grading_method_always_enabled_with_various_methods(self, mock_publish_grade: Mock):
@@ -1833,7 +1835,9 @@ class ProblemBlockTest(unittest.TestCase):  # pylint: disable=too-many-public-me
         block = CapaFactory.create(done=True)
 
         # Try to rescore the problem, and get exception
-        with patch("xblocks_contrib.problem.capa.capa_problem.LoncapaProblem.supports_rescoring") as mock_supports_rescoring:
+        with patch(
+            "xblocks_contrib.problem.capa.capa_problem.LoncapaProblem.supports_rescoring"
+        ) as mock_supports_rescoring:
             mock_supports_rescoring.return_value = False
             with pytest.raises(NotImplementedError):
                 block.rescore(only_if_higher=False)
@@ -2017,7 +2021,9 @@ class ProblemBlockTest(unittest.TestCase):  # pylint: disable=too-many-public-me
         block.submit_problem(get_request_dict)
 
         # Simulate answering a problem that raises the exception
-        with patch("xblocks_contrib.problem.capa.capa_problem.LoncapaProblem.get_grade_from_current_answers") as mock_rescore:
+        with patch(
+            "xblocks_contrib.problem.capa.capa_problem.LoncapaProblem.get_grade_from_current_answers"
+        ) as mock_rescore:
             mock_rescore.side_effect = exception_class("test error \u03a9")
             with pytest.raises(exception_class):
                 block.rescore(only_if_higher=False)
@@ -4055,7 +4061,8 @@ class ProblemBlockReportGenerationTest(unittest.TestCase):
 
     def setUp(self):
         self.find_question_label_patcher = patch(
-            "xblocks_contrib.problem.capa.capa_problem.LoncapaProblem.find_question_label", lambda self, answer_id: answer_id
+            "xblocks_contrib.problem.capa.capa_problem.LoncapaProblem.find_question_label",
+            lambda self, answer_id: answer_id,
         )
         self.find_answer_text_patcher = patch(
             "xblocks_contrib.problem.capa.capa_problem.LoncapaProblem.find_answer_text",

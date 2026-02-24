@@ -281,6 +281,7 @@ HOTJAR_ID = 00000
 MAKO_TEMPLATE_DIRS_BASE.insert(3, COMMON_ROOT / 'static')
 MAKO_TEMPLATE_DIRS_BASE.append(CMS_ROOT / 'djangoapps' / 'pipeline_js' / 'templates')
 
+
 def make_lms_template_path(settings):
     """
     Make the path for the LMS "templates" dir
