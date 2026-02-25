@@ -5,10 +5,11 @@
   guides help lint-imports local-requirements migrate migrate-lms migrate-cms \
   pre-requirements pull pull_xblock_translations pull_translations push_translations \
   requirements shell swagger \
-  technical-docs test-requirements ubuntu-requirements upgrade-package upgrade
+  technical-docs test-requirements ubuntu-requirements macos-requirements upgrade-package upgrade
 
 # Careful with mktemp syntax: it has to work on Mac and Ubuntu, which have differences.
 PRIVATE_FILES := $(shell mktemp -u /tmp/private_files.XXXXXX)
+UNAME_S := $(shell uname -s)
 
 help: ## display this help message
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -72,9 +73,12 @@ local-requirements:
 	pip install -e .
 
 dev-requirements: pre-requirements
-	@# The "$(wildcard..)" is to include private.txt if it exists, and make no mention
-	@# of it if it does not.  Shell wildcarding can't do that with default options.
+ifeq ($(UNAME_S),Darwin)
+	PKG_CONFIG_PATH=$(shell brew --prefix mysql-client 2>/dev/null)/lib/pkgconfig \
+		pip-sync requirements/edx/development.txt $(wildcard requirements/edx/private.txt)
+else
 	pip-sync requirements/edx/development.txt $(wildcard requirements/edx/private.txt)
+endif
 	make local-requirements
 
 base-requirements: pre-requirements
@@ -164,6 +168,9 @@ migrate: migrate-lms migrate-cms
 # Part of https://github.com/openedx/wg-developer-experience/issues/136
 ubuntu-requirements: ## Install ubuntu 22.04 system packages needed for `pip install` to work on ubuntu.
 	sudo apt install libmysqlclient-dev libxmlsec1-dev
+
+macos-requirements: ## Install macOS system packages needed for `pip install` to work on macOS.
+	brew install pkg-config mysql-client
 
 xsslint: ## check xss for quality issuest
 	python scripts/xsslint/xss_linter.py \
