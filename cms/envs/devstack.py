@@ -309,10 +309,44 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:1999',  # frontend-app-authn
 ]
 
+########################## THEMING  #######################
+COMPREHENSIVE_THEME_DIRS = []
+
+########################## Local service host overrides #######################
+SITE_ID = 2
+
+DATABASES['default']['HOST'] = '127.0.0.1'
+
+tutor_mongodb = {
+    'host': '127.0.0.1',
+    'port': 27017,
+    'db': 'openedx',
+    'user': None,
+    'password': None,
+    'connect': False,
+    'ssl': False,
+    'replicaSet': None,
+}
+
+for store in MODULESTORE['default']['OPTIONS']['stores']:
+    if 'DOC_STORE_CONFIG' in store:
+        store['DOC_STORE_CONFIG'].update(tutor_mongodb)
+
+CONTENTSTORE['DOC_STORE_CONFIG'].update(tutor_mongodb)
+
+for cache_config in CACHES.values():
+    loc = cache_config.get('LOCATION')
+    if isinstance(loc, str):
+        cache_config['LOCATION'] = loc.replace('redis://@redis:6379', 'redis://@127.0.0.1:6380')
+    elif isinstance(loc, list):
+        cache_config['LOCATION'] = [
+            l.replace('redis://@redis:6379', 'redis://@127.0.0.1:6380') for l in loc
+        ]
+
 #################### Event bus backend ########################
 
 EVENT_BUS_PRODUCER = 'edx_event_bus_redis.create_producer'
-EVENT_BUS_REDIS_CONNECTION_URL = 'redis://:password@edx.devstack.redis:6379/'
+EVENT_BUS_REDIS_CONNECTION_URL = 'redis://@127.0.0.1:6380/'
 EVENT_BUS_TOPIC_PREFIX = 'dev'
 EVENT_BUS_CONSUMER = 'edx_event_bus_redis.RedisEventConsumer'
 
