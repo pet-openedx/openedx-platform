@@ -4,7 +4,7 @@
   docs extract_translations \
   guides help lint-imports local-requirements migrate migrate-lms migrate-cms \
   pre-requirements pull pull_xblock_translations pull_translations push_translations \
-  requirements shell swagger \
+  requirements run-lms run-cms shell swagger \
   technical-docs test-requirements ubuntu-requirements macos-requirements upgrade-package upgrade
 
 # Careful with mktemp syntax: it has to work on Mac and Ubuntu, which have differences.
@@ -74,7 +74,7 @@ local-requirements:
 
 dev-requirements: pre-requirements
 ifeq ($(UNAME_S),Darwin)
-	PKG_CONFIG_PATH=$(shell brew --prefix mysql-client 2>/dev/null)/lib/pkgconfig \
+	PKG_CONFIG_PATH=$(shell brew --prefix mysql-client 2>/dev/null)/lib/pkgconfig:$(shell brew --prefix libxmlsec1 2>/dev/null)/lib/pkgconfig \
 		pip-sync requirements/edx/development.txt $(wildcard requirements/edx/private.txt)
 else
 	pip-sync requirements/edx/development.txt $(wildcard requirements/edx/private.txt)
@@ -162,6 +162,12 @@ migrate-cms:
 
 migrate: migrate-lms migrate-cms
 
+run-lms: ## Run the LMS development server on port 8000
+	python manage.py lms runserver 0.0.0.0:8000
+
+run-cms: ## Run the CMS development server on port 8001
+	python manage.py cms runserver 0.0.0.0:8001
+
 # WARNING (EXPERIMENTAL):
 # This installs the Ubuntu requirements necessary to make `pip install` and some other basic
 # dev commands to pass. This is not necessarily everything needed to get a working edx-platform.
@@ -170,7 +176,7 @@ ubuntu-requirements: ## Install ubuntu 22.04 system packages needed for `pip ins
 	sudo apt install libmysqlclient-dev libxmlsec1-dev
 
 macos-requirements: ## Install macOS system packages needed for `pip install` to work on macOS.
-	brew install pkg-config mysql-client
+	brew install pkg-config mysql-client libxmlsec1
 
 xsslint: ## check xss for quality issuest
 	python scripts/xsslint/xss_linter.py \
