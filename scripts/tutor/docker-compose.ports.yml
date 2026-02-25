@@ -1,0 +1,10 @@
+services:
+  mysql:
+    ports:
+      - "3306:3306"
+  mongodb:
+    ports:
+      - "27017:27017"
+  redis:
+    ports:
+      - "6380:6379"

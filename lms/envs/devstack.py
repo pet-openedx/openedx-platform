@@ -300,6 +300,8 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = ()
 CORS_ORIGIN_ALLOW_ALL = True
 
+ENABLE_MFE_CONFIG_API = True
+
 LOGIN_REDIRECT_WHITELIST.extend([
     CMS_BASE,
     # Allow redirection to all micro-frontends.
@@ -319,6 +321,7 @@ LOGIN_REDIRECT_WHITELIST.extend([
     'localhost:18400',  # frontend-app-publisher
     'localhost:1993',  # frontend-app-ora-grading
     'localhost:1996',  # frontend-app-learner-dashboard
+    'localhost:2000',  # frontend-app-learning
     ENTERPRISE_LEARNER_PORTAL_NETLOC,  # frontend-app-learner-portal-enterprise
     ENTERPRISE_ADMIN_PORTAL_NETLOC,  # frontend-app-admin-portal
 ])
@@ -475,7 +478,45 @@ if ENABLE_ENTERPRISE_INTEGRATION:
 DCS_SESSION_COOKIE_SAMESITE = 'Lax'
 DCS_SESSION_COOKIE_SAMESITE_FORCE_ALL = True
 
+SITE_ID = 2
+
+########################## Local service host overrides #######################
+# When running LMS directly on the host (not in Docker), override service
+# hostnames from Docker-internal names to localhost since ports are exposed.
+DATABASES['default']['HOST'] = '127.0.0.1'
+
+tutor_mongodb = {
+    'host': '127.0.0.1',
+    'port': 27017,
+    'db': 'openedx',
+    'user': None,
+    'password': None,
+    'connect': False,
+    'ssl': False,
+    'replicaSet': None,
+}
+
+for store in MODULESTORE['default']['OPTIONS']['stores']:
+    if 'DOC_STORE_CONFIG' in store:
+        store['DOC_STORE_CONFIG'].update(tutor_mongodb)
+
+CONTENTSTORE['DOC_STORE_CONFIG'].update(tutor_mongodb)
+
+for cache_config in CACHES.values():
+    loc = cache_config.get('LOCATION')
+    if isinstance(loc, str):
+        cache_config['LOCATION'] = loc.replace('redis://@redis:6379', 'redis://@127.0.0.1:6380')
+    elif isinstance(loc, list):
+        cache_config['LOCATION'] = [
+            l.replace('redis://@redis:6379', 'redis://@127.0.0.1:6380') for l in loc
+        ]
+
+EVENT_BUS_REDIS_CONNECTION_URL = 'redis://@127.0.0.1:6380/'
+CELERY_BROKER_HOSTNAME = '127.0.0.1:6380'
+
 ########################## THEMING  #######################
+COMPREHENSIVE_THEME_DIRS = []
+
 # If you want to enable theming in devstack, uncomment this section and add any relevant
 # theme directories to COMPREHENSIVE_THEME_DIRS
 
