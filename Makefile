@@ -4,7 +4,7 @@
   docs extract_translations \
   guides help lint-imports local-requirements migrate migrate-lms migrate-cms \
   pre-requirements pull pull_xblock_translations pull_translations push_translations \
-  requirements run-lms run-cms run-services shell swagger \
+  requirements run-lms run-cms run-services build-assets watch-assets shell swagger \
   technical-docs test-requirements ubuntu-requirements macos-requirements upgrade-package upgrade
 
 # Careful with mktemp syntax: it has to work on Mac and Ubuntu, which have differences.
@@ -190,6 +190,17 @@ run-lms: ## Run the LMS development server on port 8000
 run-cms: ## Run the CMS development server on port 8001
 	CMS_CFG="$(TUTOR_ROOT)/env/apps/openedx/config/cms.env.yml" \
 		python manage.py cms runserver 0.0.0.0:8001
+
+STATIC_ROOT_LMS ?= $(shell dirname $(CURDIR))/staticfiles
+
+build-assets: ## Build webpack bundles and compile SASS (one-time, for HTML page rendering)
+	STATIC_ROOT_LMS="$(STATIC_ROOT_LMS)" npm run webpack-dev
+	npm run compile-sass-dev
+
+watch-assets: ## Watch and rebuild webpack + SASS on file changes
+	STATIC_ROOT_LMS="$(STATIC_ROOT_LMS)" npm run watch-webpack &
+	npm run compile-sass-dev
+	wait
 
 # WARNING (EXPERIMENTAL):
 # This installs the Ubuntu requirements necessary to make `pip install` and some other basic
