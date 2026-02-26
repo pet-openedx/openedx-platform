@@ -1,12 +1,9 @@
 name: Docker Image
 
 on:
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: Image tag
-        required: false
-        default: latest
+  push:
+    branches:
+      - master
 
 permissions:
   contents: read
@@ -31,7 +28,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/pet-openedx/openedx-platform:${{ github.event.inputs.tag }}
+            ghcr.io/pet-openedx/openedx-platform:latest
             ghcr.io/pet-openedx/openedx-platform:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

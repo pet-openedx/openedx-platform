@@ -4,7 +4,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     pkg-config \
     build-essential \
     git \
-    libmysqlclient-dev \
+    default-libmysqlclient-dev \
     libxmlsec1-dev \
     libxml2-dev \
     libxslt-dev \
@@ -36,7 +36,7 @@ RUN npm run build
 FROM python:3.11-slim-bookworm AS production
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libmysqlclient-dev \
+    default-libmysqlclient-dev \
     libxmlsec1-dev \
     libxml2-dev \
     libxslt-dev \
