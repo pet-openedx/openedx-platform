@@ -511,6 +511,13 @@ for cache_config in CACHES.values():
             l.replace('redis://@redis:6379', 'redis://@127.0.0.1:6380') for l in loc
         ]
 
+CACHES['default'] = {
+    'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+    'LOCATION': 'redis://127.0.0.1:6380',
+    'KEY_PREFIX': 'default',
+    'VERSION': '1',
+}
+
 EVENT_BUS_REDIS_CONNECTION_URL = 'redis://@127.0.0.1:6380/'
 CELERY_BROKER_HOSTNAME = '127.0.0.1:6380'
 

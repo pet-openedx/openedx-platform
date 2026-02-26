@@ -47,7 +47,7 @@ EMAIL_FILE_PATH = '/edx/src/ace_messages/'
 
 ################################# LMS INTEGRATION #############################
 
-LMS_BASE = 'localhost:18000'
+LMS_BASE = 'localhost:8000'
 LMS_ROOT_URL = f'http://{LMS_BASE}'
 
 FRONTEND_REGISTER_URL = LMS_ROOT_URL + '/register'
@@ -275,8 +275,8 @@ WEBPACK_LOADER['DEFAULT']['TIMEOUT'] = 5
 SOCIAL_AUTH_EDX_OAUTH2_KEY = 'studio-sso-key'
 SOCIAL_AUTH_EDX_OAUTH2_SECRET = 'studio-sso-secret'  # in stage, prod would be high-entropy secret
 # routed internally server-to-server
-SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = ENV_TOKENS.get('SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT', 'http://edx.devstack.lms:18000')
-SOCIAL_AUTH_EDX_OAUTH2_PUBLIC_URL_ROOT = 'http://localhost:18000'  # used in browser redirect
+SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = ENV_TOKENS.get('SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT', 'http://127.0.0.1:8000')
+SOCIAL_AUTH_EDX_OAUTH2_PUBLIC_URL_ROOT = 'http://localhost:8000'
 
 # Don't form the return redirect URL with HTTPS on devstack
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
@@ -342,6 +342,13 @@ for cache_config in CACHES.values():
         cache_config['LOCATION'] = [
             l.replace('redis://@redis:6379', 'redis://@127.0.0.1:6380') for l in loc
         ]
+
+CACHES['default'] = {
+    'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+    'LOCATION': 'redis://127.0.0.1:6380',
+    'KEY_PREFIX': 'default',
+    'VERSION': '1',
+}
 
 #################### Event bus backend ########################
 
