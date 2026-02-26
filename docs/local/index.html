@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local Development — openedx-platform</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3348;
+      --accent: #4f8ef7;
+      --accent2: #7c5af6;
+      --green: #3ecf8e;
+      --yellow: #f5c842;
+      --red: #f76f6f;
+      --text: #e2e8f0;
+      --muted: #8892a4;
+      --code-bg: #12151e;
+      --radius: 8px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      height: 56px;
+    }
+
+    nav .logo {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+    }
+
+    nav .logo span { color: var(--accent); }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.15s;
+    }
+
+    nav a:hover, nav a.active { color: var(--text); }
+
+    .nav-sep { color: var(--border); font-size: 1rem; }
+    .nav-current { font-size: 0.875rem; font-weight: 600; color: var(--text); }
+    .nav-spacer { flex: 1; }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 2.5rem 0 1rem;
+      padding-left: 0.75rem;
+      border-left: 3px solid var(--accent);
+    }
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 1.5rem 0 0.5rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 0.75rem;
+    }
+
+    p { margin-bottom: 1rem; color: var(--text); }
+
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      overflow-x: auto;
+      margin: 0.75rem 0 1.25rem;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 0.875rem;
+      color: var(--green);
+    }
+
+    p code, li code {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.1em 0.4em;
+      color: var(--accent);
+      font-size: 0.85em;
+    }
+
+    .step-grid {
+      display: grid;
+      gap: 1rem;
+      margin: 1rem 0 2rem;
+    }
+
+    .step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      display: grid;
+      grid-template-columns: 2rem 1fr;
+      gap: 0 1rem;
+      align-items: start;
+    }
+
+    .step-num {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .step-body h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .step-body p { margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted); }
+    .step-body pre { margin: 0.5rem 0 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0 2rem;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background: var(--surface2);
+      text-align: left;
+      padding: 0.6rem 1rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface); }
+
+    td a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    td a:hover { text-decoration: underline; }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2em 0.6em;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .badge-optional { background: #2a3245; color: var(--muted); }
+    .badge-onetime { background: #1e3a2f; color: var(--green); }
+
+    .callout {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--yellow);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin: 1rem 0 1.5rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .callout strong { color: var(--yellow); }
+
+    /* ─── Diagram ─────────────────────────────────────────────── */
+    .diagram-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      margin: 1.5rem 0 2.5rem;
+      overflow-x: auto;
+    }
+
+    svg text { font-family: inherit; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="../index.html"><span>openedx</span>-platform</a>
+  <span class="nav-sep">›</span>
+  <span class="nav-current">Local Development</span>
+  <div class="nav-spacer"></div>
+  <a href="#diagram">Architecture</a>
+  <a href="#first-time">First-time setup</a>
+  <a href="#daily">Daily workflow</a>
+  <a href="#reference">Reference</a>
+  <a href="../deploy/index.html">Deploy →</a>
+</nav>
+
+<div class="container">
+  <h1>Local Development</h1>
+  <p class="subtitle">Running LMS and CMS directly on macOS with Tutor-managed backing services</p>
+
+  <!-- ── Architecture diagram ──────────────────────────── -->
+  <h2 id="diagram">Architecture</h2>
+  <p>All backing services run in Docker via Tutor. LMS and CMS run directly on the host inside a Python virtualenv so you can attach a debugger and iterate without rebuilding containers.</p>
+
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 820 480" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#4f8ef7" opacity="0.7"/>
+        </marker>
+        <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#3ecf8e" opacity="0.7"/>
+        </marker>
+        <marker id="arrow-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#7c5af6" opacity="0.7"/>
+        </marker>
+      </defs>
+
+      <!-- Browser -->
+      <rect x="20" y="190" width="130" height="100" rx="8" fill="#1a1d27" stroke="#2e3348" stroke-width="1.5"/>
+      <text x="85" y="220" text-anchor="middle" fill="#8892a4" font-size="11" font-weight="600" text-transform="uppercase">BROWSER</text>
+      <text x="85" y="242" text-anchor="middle" fill="#4f8ef7" font-size="12">localhost:8000</text>
+      <text x="85" y="258" text-anchor="middle" fill="#4f8ef7" font-size="12">localhost:8001</text>
+      <text x="85" y="278" text-anchor="middle" fill="#7c5af6" font-size="11">localhost:2000</text>
+      <text x="85" y="292" text-anchor="middle" fill="#8892a4" font-size="10">(MFE optional)</text>
+
+      <!-- macOS host box -->
+      <rect x="185" y="30" width="430" height="420" rx="10" fill="#12151e" stroke="#2e3348" stroke-width="1.5" stroke-dasharray="6,3"/>
+      <text x="205" y="52" fill="#8892a4" font-size="10" font-weight="600" letter-spacing="0.08em">MACOS HOST  ·  Python venv  ·  Node 20</text>
+
+      <!-- LMS box -->
+      <rect x="210" y="70" width="185" height="140" rx="8" fill="#1a1d27" stroke="#4f8ef7" stroke-width="1.5"/>
+      <text x="302" y="95" text-anchor="middle" fill="#4f8ef7" font-size="13" font-weight="700">LMS</text>
+      <text x="302" y="115" text-anchor="middle" fill="#8892a4" font-size="10">manage.py lms runserver</text>
+      <rect x="230" y="125" width="145" height="22" rx="4" fill="#22263a"/>
+      <text x="302" y="140" text-anchor="middle" fill="#3ecf8e" font-size="11">:8000  →  learner UI</text>
+      <rect x="230" y="153" width="145" height="22" rx="4" fill="#22263a"/>
+      <text x="302" y="168" text-anchor="middle" fill="#3ecf8e" font-size="11">:8000/api  →  REST API</text>
+      <rect x="230" y="181" width="145" height="22" rx="4" fill="#22263a"/>
+      <text x="302" y="196" text-anchor="middle" fill="#3ecf8e" font-size="11">:8000/admin  →  Django admin</text>
+
+      <!-- CMS box -->
+      <rect x="415" y="70" width="185" height="140" rx="8" fill="#1a1d27" stroke="#7c5af6" stroke-width="1.5"/>
+      <text x="507" y="95" text-anchor="middle" fill="#7c5af6" font-size="13" font-weight="700">CMS (Studio)</text>
+      <text x="507" y="115" text-anchor="middle" fill="#8892a4" font-size="10">manage.py cms runserver</text>
+      <rect x="435" y="125" width="145" height="22" rx="4" fill="#22263a"/>
+      <text x="507" y="140" text-anchor="middle" fill="#3ecf8e" font-size="11">:8001  →  course authoring</text>
+      <rect x="435" y="153" width="145" height="22" rx="4" fill="#22263a"/>
+      <text x="507" y="168" text-anchor="middle" fill="#f5c842" font-size="11">OAuth2 client of LMS</text>
+
+      <!-- Assets -->
+      <rect x="210" y="240" width="390" height="80" rx="8" fill="#1a1d27" stroke="#2e3348" stroke-width="1.5"/>
+      <text x="405" y="263" text-anchor="middle" fill="#8892a4" font-size="11" font-weight="600" letter-spacing="0.06em">STATIC ASSETS  (webpack + compile-sass)</text>
+      <rect x="230" y="272" width="110" height="34" rx="4" fill="#22263a"/>
+      <text x="285" y="293" text-anchor="middle" fill="#f5c842" font-size="11">npm run build</text>
+      <rect x="355" y="272" width="110" height="34" rx="4" fill="#22263a"/>
+      <text x="410" y="293" text-anchor="middle" fill="#f5c842" font-size="11">npm run watch</text>
+      <rect x="480" y="272" width="100" height="34" rx="4" fill="#22263a"/>
+      <text x="530" y="293" text-anchor="middle" fill="#f5c842" font-size="11">make build-assets</text>
+
+      <!-- Config note -->
+      <rect x="210" y="345" width="390" height="80" rx="8" fill="#1a1d27" stroke="#2e3348" stroke-width="1.5"/>
+      <text x="405" y="368" text-anchor="middle" fill="#8892a4" font-size="11" font-weight="600" letter-spacing="0.06em">TUTOR CONFIG</text>
+      <text x="405" y="389" text-anchor="middle" fill="#4f8ef7" font-size="11">lms.env.yml  /  cms.env.yml</text>
+      <text x="405" y="408" text-anchor="middle" fill="#8892a4" font-size="10">~/Library/Application Support/tutor/env/apps/openedx/config/</text>
+
+      <!-- Docker box -->
+      <rect x="640" y="30" width="160" height="420" rx="10" fill="#12151e" stroke="#2e3348" stroke-width="1.5" stroke-dasharray="6,3"/>
+      <text x="720" y="52" text-anchor="middle" fill="#8892a4" font-size="10" font-weight="600" letter-spacing="0.08em">DOCKER  ·  make run-services</text>
+
+      <!-- MySQL -->
+      <rect x="658" y="70" width="124" height="90" rx="8" fill="#1a1d27" stroke="#f76f6f" stroke-width="1.5"/>
+      <text x="720" y="96" text-anchor="middle" fill="#f76f6f" font-size="13" font-weight="700">MySQL</text>
+      <text x="720" y="116" text-anchor="middle" fill="#8892a4" font-size="10">port 3306</text>
+      <text x="720" y="132" text-anchor="middle" fill="#8892a4" font-size="10">db: openedx</text>
+      <text x="720" y="148" text-anchor="middle" fill="#8892a4" font-size="10">user: openedx</text>
+
+      <!-- MongoDB -->
+      <rect x="658" y="180" width="124" height="90" rx="8" fill="#1a1d27" stroke="#3ecf8e" stroke-width="1.5"/>
+      <text x="720" y="206" text-anchor="middle" fill="#3ecf8e" font-size="13" font-weight="700">MongoDB</text>
+      <text x="720" y="226" text-anchor="middle" fill="#8892a4" font-size="10">port 27017</text>
+      <text x="720" y="242" text-anchor="middle" fill="#8892a4" font-size="10">db: openedx</text>
+      <text x="720" y="258" text-anchor="middle" fill="#8892a4" font-size="10">no auth</text>
+
+      <!-- Redis -->
+      <rect x="658" y="290" width="124" height="70" rx="8" fill="#1a1d27" stroke="#f5c842" stroke-width="1.5"/>
+      <text x="720" y="314" text-anchor="middle" fill="#f5c842" font-size="13" font-weight="700">Redis</text>
+      <text x="720" y="334" text-anchor="middle" fill="#8892a4" font-size="10">port 6380</text>
+      <text x="720" y="350" text-anchor="middle" fill="#8892a4" font-size="10">cache + celery</text>
+
+      <!-- Arrows: browser → LMS -->
+      <line x1="150" y1="228" x2="208" y2="140" stroke="#4f8ef7" stroke-width="1.5" stroke-opacity="0.6" marker-end="url(#arrow)"/>
+      <!-- Arrows: browser → CMS -->
+      <line x1="150" y1="248" x2="413" y2="148" stroke="#7c5af6" stroke-width="1.5" stroke-opacity="0.6" marker-end="url(#arrow-purple)"/>
+      <!-- LMS → MySQL -->
+      <line x1="612" y1="110" x2="656" y2="110" stroke="#f76f6f" stroke-width="1.2" stroke-opacity="0.5" marker-end="url(#arrow)"/>
+      <!-- LMS → MongoDB -->
+      <line x1="612" y1="130" x2="656" y2="220" stroke="#3ecf8e" stroke-width="1.2" stroke-opacity="0.5" marker-end="url(#arrow-green)"/>
+      <!-- LMS → Redis -->
+      <line x1="612" y1="150" x2="656" y2="315" stroke="#f5c842" stroke-width="1.2" stroke-opacity="0.5" marker-end="url(#arrow)"/>
+      <!-- CMS → MySQL -->
+      <line x1="612" y1="140" x2="657" y2="125" stroke="#f76f6f" stroke-width="1.2" stroke-opacity="0.5" marker-end="url(#arrow)"/>
+      <!-- CMS → LMS OAuth -->
+      <line x1="415" y1="155" x2="397" y2="155" stroke="#f5c842" stroke-width="1.2" stroke-opacity="0.6" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+    </svg>
+  </div>
+
+  <!-- ── First-time setup ──────────────────────────────── -->
+  <h2 id="first-time">First-time setup</h2>
+  <p>Run these once after cloning. Requires <a href="https://brew.sh" style="color:var(--accent)">Homebrew</a>, <a href="https://github.com/pyenv/pyenv" style="color:var(--accent)">pyenv</a>, Node 20, and <a href="https://docs.tutor.edly.io" style="color:var(--accent)">Tutor</a> installed.</p>
+
+  <div class="step-grid">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h4>Install system dependencies</h4>
+        <p>C libraries needed to compile Python packages on macOS.</p>
+        <pre><code>make macos-requirements</code></pre>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h4>Create and activate Python virtualenv</h4>
+        <pre><code>pyenv install 3.11.11   # if not already installed
+python -m venv ~/venvs/openedx
+source ~/venvs/openedx/bin/activate</code></pre>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h4>Install Python dependencies</h4>
+        <pre><code>make dev-requirements</code></pre>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <h4>Install Node dependencies</h4>
+        <pre><code>npm install</code></pre>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <h4>Start backing services</h4>
+        <pre><code>make run-services</code></pre>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <h4>Run database migrations</h4>
+        <pre><code>make migrate-lms
+make migrate-cms</code></pre>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">7</div>
+      <div class="step-body">
+        <h4>Create a superuser <span class="badge badge-onetime">one-time</span></h4>
+        <pre><code>LMS_CFG="$HOME/Library/Application Support/tutor/env/apps/openedx/config/lms.env.yml" \
+  python manage.py lms createsuperuser</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Daily workflow ────────────────────────────────── -->
+  <h2 id="daily">Daily workflow</h2>
+
+  <h3>Step 1 — Start backing services</h3>
+  <pre><code>make run-services</code></pre>
+  <p>Starts MySQL (3306), MongoDB (27017), Redis (6380) in Docker with ports exposed to host. Only needed once per machine restart.</p>
+
+  <h3>Step 2 — Run the servers (separate terminals)</h3>
+  <pre><code>source ~/venvs/openedx/bin/activate
+make run-lms   # terminal 1  →  http://localhost:8000
+make run-cms   # terminal 2  →  http://localhost:8001</code></pre>
+
+  <h3>Step 3 — Build static assets (optional)</h3>
+  <p>HTML pages (login, dashboard, etc.) require compiled assets. REST APIs work without them.</p>
+  <pre><code>make build-assets    # one-time production-style build
+# or during active JS development:
+make watch-assets    # rebuilds on file changes</code></pre>
+  <div class="callout">
+    <strong>Note:</strong> Without compiled assets, HTML pages return 500. REST APIs and admin still work.
+  </div>
+
+  <!-- ── Reference ─────────────────────────────────────── -->
+  <h2 id="reference">Reference</h2>
+
+  <h3>URLs</h3>
+  <table>
+    <thead>
+      <tr><th>App</th><th>URL</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>LMS</td><td><a href="http://localhost:8000">localhost:8000</a></td><td>Learner-facing platform</td></tr>
+      <tr><td>CMS (Studio)</td><td><a href="http://localhost:8001">localhost:8001</a></td><td>Course authoring</td></tr>
+      <tr><td>LMS Admin</td><td><a href="http://localhost:8000/admin">localhost:8000/admin</a></td><td>Django admin</td></tr>
+      <tr><td>LMS API</td><td><a href="http://localhost:8000/api/">localhost:8000/api/</a></td><td>REST APIs</td></tr>
+      <tr><td>Heartbeat</td><td><a href="http://localhost:8000/heartbeat">localhost:8000/heartbeat</a></td><td>Health check</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Make targets</h3>
+  <table>
+    <thead>
+      <tr><th>Target</th><th>What it does</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>make run-services</code></td><td>Start MySQL, MongoDB, Redis via Docker</td></tr>
+      <tr><td><code>make run-lms</code></td><td>Run LMS dev server on :8000</td></tr>
+      <tr><td><code>make run-cms</code></td><td>Run CMS dev server on :8001</td></tr>
+      <tr><td><code>make migrate-lms</code></td><td>Run LMS Django migrations</td></tr>
+      <tr><td><code>make migrate-cms</code></td><td>Run CMS Django migrations</td></tr>
+      <tr><td><code>make build-assets</code></td><td>webpack + compile-sass (one-time)</td></tr>
+      <tr><td><code>make watch-assets</code></td><td>Rebuild assets on file changes</td></tr>
+      <tr><td><code>make dev-requirements</code></td><td>Install Python dev deps</td></tr>
+      <tr><td><code>make macos-requirements</code></td><td>Install Homebrew system deps</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Tutor config paths</h3>
+  <table>
+    <thead>
+      <tr><th>File</th><th>Path</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>LMS config</td><td><code>~/Library/Application Support/tutor/env/apps/openedx/config/lms.env.yml</code></td></tr>
+      <tr><td>CMS config</td><td><code>~/Library/Application Support/tutor/env/apps/openedx/config/cms.env.yml</code></td></tr>
+      <tr><td>Docker compose</td><td><code>~/Library/Application Support/tutor/env/local/docker-compose.yml</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>MFE development</h3>
+  <p>Point your MFE's <code>.env.development</code> at <code>http://localhost:8000</code>. The LMS is already configured to allow CORS from <code>localhost:2000</code>.</p>
+  <pre><code>LMS_BASE_URL=http://localhost:8000
+LOGIN_URL=http://localhost:8000/login
+LOGOUT_URL=http://localhost:8000/logout</code></pre>
+
+  <h3>After pulling new code</h3>
+  <pre><code>make migrate-lms
+make migrate-cms</code></pre>
+</div>
+
+</body>
+</html>
