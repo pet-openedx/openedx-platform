@@ -24,6 +24,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 COPY package.json package-lock.json ./
+COPY scripts/ ./scripts/
 RUN npm ci --no-audit
 
 COPY requirements/edx/assets.txt /tmp/assets.txt
