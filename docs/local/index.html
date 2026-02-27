@@ -252,8 +252,8 @@
   <a href="#diagram">Architecture</a>
   <a href="#first-time">First-time setup</a>
   <a href="#daily">Daily workflow</a>
+  <a href="#e2e">E2E Tests</a>
   <a href="#reference">Reference</a>
-  <a href="health-check.html">Health Check</a>
   <a href="../deploy/index.html">Deploy →</a>
 </nav>
 
@@ -450,6 +450,46 @@ make watch-assets    # rebuilds on file changes</code></pre>
     <strong>Note:</strong> Without compiled assets, HTML pages return 500. REST APIs and admin still work.
   </div>
 
+  <!-- ── E2E Tests ─────────────────────────────────────── -->
+  <h2 id="e2e">E2E Tests</h2>
+  <p>Selenium tests cover three real user flows: course enrollment, courseware navigation, and CMS course creation. They run against already-running LMS and CMS servers.</p>
+
+  <h3>Prerequisites</h3>
+  <p>LMS, CMS, and backing services must all be running before you start the tests.</p>
+  <pre><code>make run-services   # terminal 1
+make run-lms        # terminal 2  →  http://localhost:8000
+make run-cms        # terminal 3  →  http://localhost:8001</code></pre>
+
+  <h3>Run all E2E tests</h3>
+  <p>This installs Selenium dependencies, seeds the required test data, then runs the full suite.</p>
+  <pre><code>make test-e2e</code></pre>
+
+  <h3>Seed test data only</h3>
+  <p>Creates a known learner (<code>e2e_learner@example.com</code>) and a real course with XBlock content in MongoDB. Idempotent — safe to run multiple times.</p>
+  <pre><code>make seed-e2e-data</code></pre>
+
+  <h3>Run a single test file</h3>
+  <pre><code>pytest tests/e2e/tests/test_enrollment.py -v
+pytest tests/e2e/tests/test_courseware.py -v
+pytest tests/e2e/tests/test_course_creation.py -v</code></pre>
+
+  <div class="callout">
+    <strong>Note:</strong> Courseware tests (<code>test_courseware.py</code>) rely on the seeded course created by <code>make seed-e2e-data</code>. Run that command at least once before running courseware tests in isolation.
+  </div>
+
+  <h3>Test data</h3>
+  <table>
+    <thead>
+      <tr><th>What</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Seeded learner email</td><td><code>e2e_learner@example.com</code></td></tr>
+      <tr><td>Seeded learner password</td><td><code>Password1234</code></td></tr>
+      <tr><td>Seeded course key</td><td><code>course-v1:E2EOrg+E2ECourse+2025</code></td></tr>
+      <tr><td>E2E deps</td><td><code>tests/e2e/requirements.txt</code> (isolated from main deps)</td></tr>
+    </tbody>
+  </table>
+
   <!-- ── Reference ─────────────────────────────────────── -->
   <h2 id="reference">Reference</h2>
 
@@ -482,6 +522,8 @@ make watch-assets    # rebuilds on file changes</code></pre>
       <tr><td><code>make watch-assets</code></td><td>Rebuild assets on file changes</td></tr>
       <tr><td><code>make dev-requirements</code></td><td>Install Python dev deps</td></tr>
       <tr><td><code>make macos-requirements</code></td><td>Install Homebrew system deps</td></tr>
+      <tr><td><code>make seed-e2e-data</code></td><td>Seed known E2E learner and course into the database</td></tr>
+      <tr><td><code>make test-e2e</code></td><td>Run all Selenium E2E tests (seeds data first)</td></tr>
     </tbody>
   </table>
 

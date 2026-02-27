@@ -5,7 +5,8 @@
   guides help lint-imports local-requirements migrate migrate-lms migrate-cms \
   pre-requirements pull pull_xblock_translations pull_translations push_translations \
   requirements run-lms run-cms run-services build-assets watch-assets shell swagger \
-  technical-docs test-requirements ubuntu-requirements macos-requirements upgrade-package upgrade
+  technical-docs test-requirements ubuntu-requirements macos-requirements upgrade-package upgrade \
+  seed-e2e-data test-e2e
 
 # Careful with mktemp syntax: it has to work on Mac and Ubuntu, which have differences.
 PRIVATE_FILES := $(shell mktemp -u /tmp/private_files.XXXXXX)
@@ -245,3 +246,15 @@ check_keywords: ## check django models for reserve keywords
 	DJANGO_SETTINGS_MODULE=lms.envs.test \
 	python manage.py lms check_reserved_keywords \
 	--override_file db_keyword_overrides.yml
+
+seed-e2e-data: ## Seed known E2E test course and learner into the database
+	LMS_CFG="$(TUTOR_ROOT)/env/apps/openedx/config/lms.env.yml" \
+		python manage.py lms seed_e2e_data
+
+test-e2e: ## Run Selenium E2E tests (requires make run-lms and make run-cms)
+	pip install -r tests/e2e/requirements.txt
+	make seed-e2e-data
+	LMS_CFG="$(TUTOR_ROOT)/env/apps/openedx/config/lms.env.yml" \
+	LMS_BASE_URL="http://localhost:8000" \
+	CMS_BASE_URL="http://localhost:8001" \
+		pytest tests/e2e/tests/ -v
