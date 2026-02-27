@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Check — openedx-platform</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3348;
+      --accent: #4f8ef7;
+      --accent2: #7c5af6;
+      --green: #3ecf8e;
+      --yellow: #f5c842;
+      --red: #f76f6f;
+      --text: #e2e8f0;
+      --muted: #8892a4;
+      --code-bg: #12151e;
+      --radius: 8px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      height: 56px;
+    }
+
+    nav .logo {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+    }
+
+    nav .logo span { color: var(--accent); }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.15s;
+    }
+
+    nav a:hover, nav a.active { color: var(--text); }
+
+    .nav-sep { color: var(--border); font-size: 1rem; }
+    .nav-current { font-size: 0.875rem; font-weight: 600; color: var(--text); }
+    .nav-spacer { flex: 1; }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 2.5rem 0 1rem;
+      padding-left: 0.75rem;
+      border-left: 3px solid var(--accent);
+    }
+
+    h3 {
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin: 1.5rem 0 0.5rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    p { margin-bottom: 1rem; color: var(--text); }
+
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      overflow-x: auto;
+      margin: 0.75rem 0 1.25rem;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 0.875rem;
+      color: var(--green);
+    }
+
+    p code, li code, td code {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.1em 0.4em;
+      color: var(--accent);
+      font-size: 0.85em;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0 2rem;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background: var(--surface2);
+      text-align: left;
+      padding: 0.6rem 1rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface); }
+
+    td a { color: var(--accent); text-decoration: none; }
+    td a:hover { text-decoration: underline; }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2em 0.6em;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .badge-ok   { background: #1e3a2f; color: var(--green); }
+    .badge-fail { background: #3a1e1e; color: var(--red); }
+    .badge-ext  { background: #2a2a1e; color: var(--yellow); }
+
+    .callout {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--yellow);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin: 1rem 0 1.5rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .callout strong { color: var(--yellow); }
+
+    .callout-info {
+      border-left-color: var(--accent);
+    }
+
+    .callout-info strong { color: var(--accent); }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1rem 0 2rem;
+    }
+
+    @media (max-width: 640px) {
+      .mode-grid { grid-template-columns: 1fr; }
+    }
+
+    .mode-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+    }
+
+    .mode-card h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .mode-card .mode-url {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.8rem;
+      color: var(--green);
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .mode-card ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .mode-card ul li {
+      font-size: 0.875rem;
+      color: var(--muted);
+      padding: 0.2rem 0;
+      display: flex;
+      gap: 0.5rem;
+      align-items: baseline;
+    }
+
+    .mode-card ul li::before {
+      content: '✓';
+      color: var(--green);
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .check-dot-ok   { color: var(--green); }
+    .check-dot-warn { color: var(--yellow); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="../index.html"><span>openedx</span>-platform</a>
+  <span class="nav-sep">›</span>
+  <a href="index.html">Local Development</a>
+  <span class="nav-sep">›</span>
+  <span class="nav-current">Health Check</span>
+  <div class="nav-spacer"></div>
+  <a href="#endpoint">Endpoint</a>
+  <a href="#checks">Checks</a>
+  <a href="#responses">Responses</a>
+  <a href="#source">Source</a>
+</nav>
+
+<div class="container">
+  <h1>Health Check</h1>
+  <p class="subtitle">Built-in heartbeat endpoint for verifying the status of LMS and its backing services</p>
+
+  <!-- ── Endpoint ─────────────────────────────────────── -->
+  <h2 id="endpoint">Endpoint</h2>
+  <p>The LMS exposes a single heartbeat endpoint at <code>/heartbeat</code>, mounted by the <code>openedx.core.djangoapps.heartbeat</code> app. It is intended for load balancers and monitoring tools.</p>
+
+  <div class="mode-grid">
+    <div class="mode-card">
+      <h4>Normal mode</h4>
+      <span class="mode-url">GET http://localhost:8000/heartbeat</span>
+      <ul>
+        <li>MySQL (SQL ping)</li>
+        <li>MongoDB / modulestore</li>
+      </ul>
+    </div>
+    <div class="mode-card">
+      <h4>Extended mode <span class="badge badge-ext">slower</span></h4>
+      <span class="mode-url">GET http://localhost:8000/heartbeat?extended</span>
+      <ul>
+        <li>MySQL (SQL ping)</li>
+        <li>MongoDB / modulestore</li>
+        <li>Celery worker + Redis broker</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout callout-info">
+    <strong>Note:</strong> The extended check dispatches a real Celery task and waits up to <code>HEARTBEAT_CELERY_TIMEOUT</code> seconds (default 5 s) for a result. Don't use <code>?extended</code> for frequent automated probes — use it for manual diagnosis.
+  </div>
+
+  <!-- ── Checks ──────────────────────────────────────── -->
+  <h2 id="checks">What each check verifies</h2>
+
+  <table>
+    <thead>
+      <tr><th>Key</th><th>Mode</th><th>Service</th><th>What it does</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>sql</code></td>
+        <td>normal</td>
+        <td>MySQL :3306</td>
+        <td>Executes <code>SELECT 1</code> via Django's DB connection</td>
+      </tr>
+      <tr>
+        <td><code>modulestore</code></td>
+        <td>normal</td>
+        <td>MongoDB :27017</td>
+        <td>Calls <code>modulestore().heartbeat()</code> — pings all configured stores (Split + Mongo)</td>
+      </tr>
+      <tr>
+        <td><code>celery</code></td>
+        <td>extended</td>
+        <td>Celery worker + Redis :6380</td>
+        <td>Dispatches a no-op task via <code>sample_task.apply_async()</code> and polls for completion within the timeout</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>What is NOT checked</h3>
+  <p>The Redis cache (read/write) is <em>not</em> included in the default checks. The functions <code>check_cache_set</code> and <code>check_cache_get</code> exist in <code>default_checks.py</code> but are not wired into <code>HEARTBEAT_CHECKS</code>. The extended Celery check does implicitly exercise Redis as a broker.</p>
+
+  <!-- ── Responses ───────────────────────────────────── -->
+  <h2 id="responses">Response format</h2>
+
+  <h3>200 OK — all checks passed</h3>
+  <pre><code>{
+  "sql":         { "status": true, "message": "OK" },
+  "modulestore": { "status": true, "message": "OK" }
+}</code></pre>
+
+  <h3>200 OK — extended mode, all passed</h3>
+  <pre><code>{
+  "sql":         { "status": true, "message": "OK" },
+  "modulestore": { "status": true, "message": "OK" },
+  "celery":      { "status": true, "message": "{'time': '0.312'}" }
+}</code></pre>
+
+  <h3>503 Service Unavailable — one or more checks failed</h3>
+  <pre><code>{
+  "sql":         { "status": true,  "message": "OK" },
+  "modulestore": { "status": false, "message": "MongoDB connection refused" }
+}</code></pre>
+
+  <p>A <strong>503</strong> is returned if any single check returns <code>false</code>. The response body identifies which service failed and why.</p>
+
+  <!-- ── Configuration ───────────────────────────────── -->
+  <h2 id="config">Configuration</h2>
+
+  <table>
+    <thead>
+      <tr><th>Setting</th><th>Default</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>HEARTBEAT_CHECKS</code></td>
+        <td><code>[check_modulestore, check_database]</code></td>
+        <td>Checks run in normal mode. Add dotted-path strings to include custom checks.</td>
+      </tr>
+      <tr>
+        <td><code>HEARTBEAT_EXTENDED_CHECKS</code></td>
+        <td><code>(check_celery,)</code></td>
+        <td>Additional checks run only when <code>?extended</code> is present.</td>
+      </tr>
+      <tr>
+        <td><code>HEARTBEAT_CELERY_TIMEOUT</code></td>
+        <td><code>5</code> (seconds)</td>
+        <td>How long to wait for the Celery sample task before declaring failure.</td>
+      </tr>
+      <tr>
+        <td><code>HEARTBEAT_CELERY_ROUTING_KEY</code></td>
+        <td><code>HIGH_PRIORITY_QUEUE</code></td>
+        <td>Queue the sample task is sent to.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ── Source ─────────────────────────────────────── -->
+  <h2 id="source">Source files</h2>
+
+  <table>
+    <thead>
+      <tr><th>File</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>openedx/core/djangoapps/heartbeat/views.py</code></td><td>View — runs checks, returns JSON, sets 200/503</td></tr>
+      <tr><td><code>openedx/core/djangoapps/heartbeat/runchecks.py</code></td><td>Loads check functions from <code>HEARTBEAT_CHECKS</code> settings and iterates them</td></tr>
+      <tr><td><code>openedx/core/djangoapps/heartbeat/default_checks.py</code></td><td>Built-in check functions: <code>check_database</code>, <code>check_modulestore</code>, <code>check_celery</code>, <code>check_cache_set</code>, <code>check_cache_get</code></td></tr>
+      <tr><td><code>openedx/core/djangoapps/heartbeat/tasks.py</code></td><td>Celery <code>sample_task</code> used by <code>check_celery</code></td></tr>
+      <tr><td><code>openedx/core/djangoapps/heartbeat/urls.py</code></td><td>Mounts the view at <code>''</code> (prefix applied in <code>lms/urls.py</code>)</td></tr>
+      <tr><td><code>openedx/envs/common.py</code></td><td>Defines <code>HEARTBEAT_CHECKS</code>, <code>HEARTBEAT_EXTENDED_CHECKS</code>, timeout, routing key</td></tr>
+    </tbody>
+  </table>
+
+</div>
+
+</body>
+</html>

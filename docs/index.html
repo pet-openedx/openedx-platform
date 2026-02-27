@@ -50,11 +50,15 @@
 
     .cards {
       display: grid;
-      grid-template-columns: repeat(2, 320px);
+      grid-template-columns: repeat(3, 280px);
       gap: 1.25rem;
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 920px) {
+      .cards { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 600px) {
       .cards { grid-template-columns: 1fr; }
     }
 
@@ -77,6 +81,7 @@
 
     .card.local:hover { border-color: var(--accent); }
     .card.deploy:hover { border-color: var(--green); }
+    .card.health:hover { border-color: var(--yellow); }
 
     .card-icon {
       width: 40px;
@@ -90,6 +95,7 @@
 
     .card.local .card-icon { background: #1a2a45; }
     .card.deploy .card-icon { background: #1e3a2f; }
+    .card.health .card-icon { background: #2e2a12; }
 
     .card-title {
       font-size: 1.05rem;
@@ -98,6 +104,7 @@
 
     .card.local .card-title { color: var(--accent); }
     .card.deploy .card-title { color: var(--green); }
+    .card.health .card-title { color: var(--yellow); }
 
     .card-desc {
       font-size: 0.875rem;
@@ -156,6 +163,21 @@
         <span class="chip">Dockerfile</span>
         <span class="chip">docker-image.yml</span>
         <span class="chip">tutor local launch</span>
+      </div>
+    </a>
+
+    <a class="card health" href="local/health-check.html">
+      <div class="card-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f5c842" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+      </div>
+      <div class="card-title">Health Check</div>
+      <div class="card-desc">Built-in heartbeat endpoint verifying MySQL, MongoDB, and Celery. Normal and extended modes with JSON response format.</div>
+      <div class="card-links">
+        <span class="chip">GET /heartbeat</span>
+        <span class="chip">?extended</span>
+        <span class="chip">503 on failure</span>
       </div>
     </a>
 
