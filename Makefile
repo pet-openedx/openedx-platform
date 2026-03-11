@@ -254,7 +254,10 @@ seed-e2e-data: ## Seed known E2E test course and learner into the database
 test-e2e: ## Run Selenium E2E tests (requires make run-lms and make run-cms)
 	pip install -r tests/e2e/requirements.txt
 	make seed-e2e-data
+	mkdir -p reports/screenshots
 	LMS_CFG="$(TUTOR_ROOT)/env/apps/openedx/config/lms.env.yml" \
 	LMS_BASE_URL="http://localhost:8000" \
 	CMS_BASE_URL="http://localhost:8001" \
-		pytest tests/e2e/tests/ -v
+		pytest tests/e2e/tests/ -v -x \
+		--html=reports/e2e-report.html \
+		--self-contained-html

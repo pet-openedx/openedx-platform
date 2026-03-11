@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 from uuid import uuid4
 
 import pytest
@@ -18,6 +20,9 @@ from seed.mysql_seeder import (
 )
 from settings import CMS_BASE_URL, E2E_COURSE_KEY, E2E_USER_EMAIL, LMS_BASE_URL, TEST_PASSWORD
 
+_HEADLESS = os.environ.get("E2E_HEADLESS", "false").lower() == "true"
+_SCREENSHOTS_DIR = Path("reports/screenshots")
+
 
 @pytest.fixture(scope="session")
 def db_engine():
@@ -36,13 +41,33 @@ def mongo_client():
 @pytest.fixture
 def driver():
     options = Options()
-    options.add_argument("--headless")
+    if _HEADLESS:
+        options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     chrome_driver = webdriver.Chrome(options=options)
     chrome_driver.implicitly_wait(10)
     yield chrome_driver
     chrome_driver.quit()
+
+
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    pytest_html = item.config.pluginmanager.getplugin("html")
+    outcome = yield
+    report = outcome.get_result()
+    if report.when == "call" and report.failed:
+        driver = item.funcargs.get("driver")
+        if driver:
+            _SCREENSHOTS_DIR.mkdir(parents=True, exist_ok=True)
+            safe_name = item.nodeid.replace("/", "_").replace("::", "_").replace("[", "_").replace("]", "")
+            screenshot_path = _SCREENSHOTS_DIR / f"{safe_name}.png"
+            driver.save_screenshot(str(screenshot_path))
+            if pytest_html is not None:
+                extras = getattr(report, "extras", [])
+                extras.append(pytest_html.extras.image(str(screenshot_path)))
+                extras.append(pytest_html.extras.url(driver.current_url))
+                report.extras = extras
 
 
 @pytest.fixture
