@@ -1,12 +1,11 @@
-import os
 from uuid import uuid4
 
 import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-from tests.e2e.seed.mongo_seeder import get_client
-from tests.e2e.seed.mysql_seeder import (
+from seed.mongo_seeder import get_client
+from seed.mysql_seeder import (
     delete_course_overview,
     delete_user,
     get_engine,
@@ -17,12 +16,7 @@ from tests.e2e.seed.mysql_seeder import (
     make_course,
     make_user,
 )
-
-LMS_BASE_URL = os.environ.get("LMS_BASE_URL", "http://localhost:8000")
-CMS_BASE_URL = os.environ.get("CMS_BASE_URL", "http://localhost:8001")
-TEST_PASSWORD = "Password1234"
-E2E_USER_EMAIL = "e2e_learner@example.com"
-E2E_COURSE_KEY = os.environ.get("E2E_COURSE_KEY", "course-v1:E2EOrg+E2ECourse+2025")
+from settings import CMS_BASE_URL, E2E_COURSE_KEY, E2E_USER_EMAIL, LMS_BASE_URL, TEST_PASSWORD
 
 
 @pytest.fixture(scope="session")

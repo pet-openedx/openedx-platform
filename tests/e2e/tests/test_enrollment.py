@@ -1,7 +1,7 @@
-from tests.e2e.conftest import LMS_BASE_URL, TEST_PASSWORD
-from tests.e2e.pages.lms.course_about_page import CourseAboutPage
-from tests.e2e.pages.lms.dashboard_page import DashboardPage
-from tests.e2e.pages.lms.login_page import LoginPage
+from settings import LMS_BASE_URL, TEST_PASSWORD
+from pages.lms.course_about_page import CourseAboutPage
+from pages.lms.dashboard_page import DashboardPage
+from pages.lms.login_page import LoginPage
 
 
 def test_user_sees_enrolled_course_on_dashboard(driver, enrolled_user):

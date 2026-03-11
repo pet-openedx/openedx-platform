@@ -1,8 +1,8 @@
 import pytest
 
-from tests.e2e.conftest import LMS_BASE_URL
-from tests.e2e.pages.lms.login_page import LoginPage
-from tests.e2e.pages.lms.courseware_page import CoursewarePage
+from settings import LMS_BASE_URL
+from pages.lms.login_page import LoginPage
+from pages.lms.courseware_page import CoursewarePage
 
 
 def test_enrolled_user_can_access_courseware(driver, seeded_course):

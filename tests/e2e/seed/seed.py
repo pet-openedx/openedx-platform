@@ -1,5 +1,5 @@
-from tests.e2e.seed.mongo_seeder import get_client, seed_course
-from tests.e2e.seed.mysql_seeder import get_engine, seed_from_yaml
+from .mongo_seeder import get_client, seed_course
+from .mysql_seeder import get_engine, seed_from_yaml
 
 E2E_COURSE_ORG = "E2EOrg"
 E2E_COURSE_NUM = "E2ECourse"

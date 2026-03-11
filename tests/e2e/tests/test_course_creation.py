@@ -1,9 +1,9 @@
 from uuid import uuid4
 
-from tests.e2e.conftest import LMS_BASE_URL, CMS_BASE_URL, TEST_PASSWORD
-from tests.e2e.pages.cms.cms_login_page import CmsLoginPage
-from tests.e2e.pages.cms.cms_home_page import CmsHomePage
-from tests.e2e.pages.cms.course_outline_page import CourseOutlinePage
+from settings import LMS_BASE_URL, CMS_BASE_URL, TEST_PASSWORD
+from pages.cms.cms_login_page import CmsLoginPage
+from pages.cms.cms_home_page import CmsHomePage
+from pages.cms.course_outline_page import CourseOutlinePage
 
 
 def test_staff_can_create_course(driver, cms_staff_user):

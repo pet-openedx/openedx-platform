@@ -1,6 +1,6 @@
 from selenium.webdriver.common.by import By
 
-from tests.e2e.pages.base_page import BasePage
+from pages.base_page import BasePage
 
 
 class DashboardPage(BasePage):
