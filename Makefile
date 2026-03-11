@@ -248,8 +248,8 @@ check_keywords: ## check django models for reserve keywords
 	--override_file db_keyword_overrides.yml
 
 seed-e2e-data: ## Seed known E2E test course and learner into the database
-	LMS_CFG="$(TUTOR_ROOT)/env/apps/openedx/config/lms.env.yml" \
-		python manage.py lms seed_e2e_data
+	pip install -r tests/e2e/requirements.txt
+	python -m tests.e2e.seed.seed
 
 test-e2e: ## Run Selenium E2E tests (requires make run-lms and make run-cms)
 	pip install -r tests/e2e/requirements.txt

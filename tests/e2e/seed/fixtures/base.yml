@@ -1,0 +1,60 @@
+auth_user:
+  - username: e2e_learner
+    email: e2e_learner@example.com
+    password: Password1234
+    first_name: ""
+    last_name: ""
+    is_superuser: false
+    is_staff: false
+    is_active: true
+    date_joined: "2024-01-01 00:00:00"
+
+auth_userprofile:
+  - user_ref: e2e_learner
+    name: "E2E Learner"
+    meta: "{}"
+    courseware: "course.xml"
+    language: ""
+    location: ""
+    mailing_address: ""
+    goals: ""
+
+course_overviews_courseoverview:
+  - id: "course-v1:E2EOrg+E2ECourse+2025"
+    version: 0
+    org: "E2EOrg"
+    display_name: "E2E Test Course"
+    display_number_with_default: "E2ECourse"
+    display_org_with_default: "E2EOrg"
+    _location: "block-v1:E2EOrg+E2ECourse+2025+type@course+block@course"
+    _pre_requisite_courses_json: "[]"
+    start: "2020-01-01 00:00:00"
+    course_image_url: ""
+    banner_image_url: ""
+    invitation_only: false
+    self_paced: false
+    mobile_available: false
+    visible_to_staff_only: false
+    has_highlights: false
+    certificates_display_behavior: "end"
+    certificates_show_before_end: false
+    cert_html_view_enabled: false
+    has_any_active_web_certificate: false
+    cert_name_short: ""
+    cert_name_long: ""
+    catalog_visibility: "both"
+    language: ""
+    eligible_for_financial_aid: false
+    allow_proctoring_opt_out: false
+    enable_proctored_exams: false
+    entrance_exam_enabled: false
+    entrance_exam_id: ""
+    entrance_exam_minimum_score_pct: 0.0
+    force_on_flexible_peer_openassessments: false
+
+student_courseenrollment:
+  - user_ref: e2e_learner
+    course_id: "course-v1:E2EOrg+E2ECourse+2025"
+    is_active: true
+    mode: "audit"
+    created: "2024-01-01 00:00:00"
