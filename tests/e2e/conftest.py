@@ -1,10 +1,9 @@
+import base64
+import html
 import os
-from pathlib import Path
 from uuid import uuid4
 
 import pytest
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 
 from seed.mongo_seeder import get_client
 from seed.mysql_seeder import (
@@ -20,9 +19,6 @@ from seed.mysql_seeder import (
 )
 from settings import CMS_BASE_URL, E2E_COURSE_KEY, E2E_USER_EMAIL, LMS_BASE_URL, TEST_PASSWORD
 
-_HEADLESS = os.environ.get("E2E_HEADLESS", "false").lower() == "true"
-_SCREENSHOTS_DIR = Path("reports/screenshots")
-
 
 @pytest.fixture(scope="session")
 def db_engine():
@@ -36,38 +32,6 @@ def mongo_client():
     client = get_client()
     yield client
     client.close()
-
-
-@pytest.fixture
-def driver():
-    options = Options()
-    if _HEADLESS:
-        options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    chrome_driver = webdriver.Chrome(options=options)
-    chrome_driver.implicitly_wait(10)
-    yield chrome_driver
-    chrome_driver.quit()
-
-
-@pytest.hookimpl(tryfirst=True, hookwrapper=True)
-def pytest_runtest_makereport(item, call):
-    pytest_html = item.config.pluginmanager.getplugin("html")
-    outcome = yield
-    report = outcome.get_result()
-    if report.when == "call" and report.failed:
-        driver = item.funcargs.get("driver")
-        if driver:
-            _SCREENSHOTS_DIR.mkdir(parents=True, exist_ok=True)
-            safe_name = item.nodeid.replace("/", "_").replace("::", "_").replace("[", "_").replace("]", "")
-            screenshot_path = _SCREENSHOTS_DIR / f"{safe_name}.png"
-            driver.save_screenshot(str(screenshot_path))
-            if pytest_html is not None:
-                extras = getattr(report, "extras", [])
-                extras.append(pytest_html.extras.image(str(screenshot_path)))
-                extras.append(pytest_html.extras.url(driver.current_url))
-                report.extras = extras
 
 
 @pytest.fixture
@@ -146,3 +110,130 @@ def lms_base_url():
 @pytest.fixture
 def cms_base_url():
     return CMS_BASE_URL
+
+
+@pytest.fixture
+def page(page):
+    page.set_default_timeout(10000)
+    page.set_default_navigation_timeout(15000)
+    page._e2e_listeners_registered = False
+    page._e2e_nav_urls = []
+    page._e2e_network = []
+    page._e2e_console = []
+    yield page
+
+
+@pytest.fixture(autouse=True)
+def server_logs(request):
+    lms_start = _file_end_pos('/tmp/lms.log')
+    cms_start = _file_end_pos('/tmp/cms.log')
+    yield
+    request.node._e2e_lms_log = _read_log_slice('/tmp/lms.log', lms_start)
+    request.node._e2e_cms_log = _read_log_slice('/tmp/cms.log', cms_start)
+
+
+@pytest.fixture(autouse=True)
+def attach_page_to_node(request, page):
+    request.node._e2e_page = page
+    yield
+
+
+def _file_end_pos(path):
+    try:
+        return os.path.getsize(path)
+    except OSError:
+        return 0
+
+
+def _read_log_slice(path, start_pos):
+    try:
+        with open(path, 'r', errors='replace') as f:
+            f.seek(start_pos)
+            return f.read()
+    except OSError:
+        return ''
+
+
+def _html_nav_section(urls):
+    if not urls:
+        return ''
+    items = ''.join(f'<li>{html.escape(u)}</li>' for u in urls)
+    return (
+        '<details><summary><strong>Navigation URLs</strong></summary>'
+        f'<ul>{items}</ul></details>'
+    )
+
+
+def _html_network_table(records):
+    if not records:
+        return ''
+    rows = []
+    for r in records:
+        status = r.get('status') or ''
+        color = ' style="color:red"' if isinstance(status, int) and status >= 400 else ''
+        rows.append(
+            f'<tr{color}>'
+            f'<td>{html.escape(r.get("method",""))}</td>'
+            f'<td>{html.escape(r.get("url",""))}</td>'
+            f'<td>{status}</td>'
+            f'<td>{r.get("elapsed_ms","")}</td>'
+            f'</tr>'
+        )
+    body = ''.join(rows)
+    return (
+        '<details><summary><strong>Network Requests</strong></summary>'
+        '<table><thead><tr><th>Method</th><th>URL</th><th>Status</th><th>ms</th></tr></thead>'
+        f'<tbody>{body}</tbody></table></details>'
+    )
+
+
+def _html_console_table(records):
+    if not records:
+        return ''
+    rows = []
+    for r in records:
+        color = ' style="color:red"' if r.get('type') == 'error' else ''
+        rows.append(
+            f'<tr{color}>'
+            f'<td>{html.escape(r.get("type",""))}</td>'
+            f'<td>{html.escape(r.get("text",""))}</td>'
+            f'</tr>'
+        )
+    body = ''.join(rows)
+    return (
+        '<details><summary><strong>Browser Console</strong></summary>'
+        '<table><thead><tr><th>Type</th><th>Message</th></tr></thead>'
+        f'<tbody>{body}</tbody></table></details>'
+    )
+
+
+def _html_log_block(label, text):
+    return (
+        f'<details><summary><strong>{html.escape(label)}</strong></summary>'
+        f'<pre>{html.escape(text)}</pre></details>'
+    )
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    report = outcome.get_result()
+    if report.when != 'call':
+        return
+    from pytest_html import extras as html_extras
+    extra = getattr(report, 'extras', [])
+    page = getattr(item, '_e2e_page', None)
+    if page:
+        extra.append(html_extras.html(_html_nav_section(page._e2e_nav_urls)))
+        extra.append(html_extras.html(_html_network_table(page._e2e_network)))
+        extra.append(html_extras.html(_html_console_table(page._e2e_console)))
+        if report.failed:
+            screenshot_b64 = base64.b64encode(page.screenshot(type='png')).decode('utf-8')
+            extra.append(html_extras.png(screenshot_b64))
+    lms_log = getattr(item, '_e2e_lms_log', '').strip()
+    cms_log = getattr(item, '_e2e_cms_log', '').strip()
+    if lms_log:
+        extra.append(html_extras.html(_html_log_block('LMS Server Logs', lms_log)))
+    if cms_log:
+        extra.append(html_extras.html(_html_log_block('CMS Server Logs', cms_log)))
+    report.extras = extra

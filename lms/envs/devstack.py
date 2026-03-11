@@ -70,6 +70,20 @@ LOGGING['handlers']['local'] = LOGGING['handlers']['tracking'] = {
 
 LOGGING['loggers']['tracking']['handlers'] = ['console']
 
+LOGGING['formatters']['e2e'] = {
+    'format': '%(asctime)s %(levelname)s %(process)d [%(name)s] %(filename)s:%(lineno)d - %(message)s',
+    'datefmt': '%Y-%m-%dT%H:%M:%S',
+}
+LOGGING['handlers']['e2e_file'] = {
+    'class': 'logging.handlers.RotatingFileHandler',
+    'filename': '/tmp/lms.log',
+    'maxBytes': 10 * 1024 * 1024,
+    'backupCount': 1,
+    'formatter': 'e2e',
+    'level': 'INFO',
+}
+LOGGING['root'] = {'handlers': ['console', 'e2e_file'], 'level': 'INFO'}
+
 ################################ EMAIL ########################################
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'

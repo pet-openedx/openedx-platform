@@ -1,5 +1,3 @@
-from selenium.webdriver.common.by import By
-
 from pages.base_page import BasePage
 
 
@@ -8,15 +6,10 @@ class CoursewarePage(BasePage):
         self.navigate_to(f'/courses/{course_key}/courseware/')
 
     def is_loaded(self):
-        return self.wait_for_element(By.CSS_SELECTOR, '.course-index')
-
-    def get_chapter_links(self):
-        return self.driver.find_elements(By.CSS_SELECTOR, '.chapter a')
+        self.page.locator('#course-content').wait_for()
 
     def click_first_chapter(self):
-        chapters = self.get_chapter_links()
-        if chapters:
-            chapters[0].click()
+        self.page.locator('a.chapter').first.click()
 
     def xblock_content_is_visible(self):
-        return self.wait_for_element(By.CSS_SELECTOR, '.xblock-student_view')
+        self.page.locator('.xblock-student_view').wait_for()

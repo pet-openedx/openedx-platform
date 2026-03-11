@@ -1,26 +1,35 @@
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-
-
 class BasePage:
-    def __init__(self, driver, base_url):
-        self.driver = driver
+    def __init__(self, page, base_url):
+        self.page = page
         self.base_url = base_url
+        self._register_event_listeners()
+
+    def _register_event_listeners(self):
+        if getattr(self.page, '_e2e_listeners_registered', False):
+            return
+        self.page._e2e_listeners_registered = True
+        self.page._e2e_nav_urls = []
+        self.page._e2e_network = []
+        self.page._e2e_console = []
+
+        self.page.on('framenavigated',
+            lambda frame: self.page._e2e_nav_urls.append(frame.url)
+            if frame == self.page.main_frame else None)
+        self.page.on('requestfinished', self._on_request_finished)
+        self.page.on('console', lambda msg: self.page._e2e_console.append(
+            {'type': msg.type, 'text': msg.text}))
+
+    def _on_request_finished(self, request):
+        timing = request.timing
+        response = request.response()
+        elapsed_ms = round(
+            timing.get('responseEnd', 0) - timing.get('requestStart', 0), 1)
+        self.page._e2e_network.append({
+            'method': request.method,
+            'url': request.url,
+            'status': response.status if response else None,
+            'elapsed_ms': elapsed_ms,
+        })
 
     def navigate_to(self, path):
-        self.driver.get(self.base_url + path)
-
-    def wait_for_element(self, by, locator, timeout=15):
-        return WebDriverWait(self.driver, timeout).until(
-            EC.presence_of_element_located((by, locator))
-        )
-
-    def wait_for_element_clickable(self, by, locator, timeout=15):
-        return WebDriverWait(self.driver, timeout).until(
-            EC.element_to_be_clickable((by, locator))
-        )
-
-    def wait_for_url_contains(self, fragment, timeout=15):
-        WebDriverWait(self.driver, timeout).until(
-            EC.url_contains(fragment)
-        )
+        self.page.goto(self.base_url + path)

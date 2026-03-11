@@ -1,5 +1,3 @@
-from selenium.webdriver.common.by import By
-
 from pages.base_page import BasePage
 
 
@@ -8,8 +6,8 @@ class CourseAboutPage(BasePage):
         self.navigate_to(f'/courses/{course_id}/about')
 
     def is_loaded(self):
-        return self.wait_for_element(By.CSS_SELECTOR, '.course-about')
+        self.page.locator('.course-info').wait_for()
 
     def enroll(self):
-        self.wait_for_element_clickable(By.CSS_SELECTOR, '.register-button').click()
-        self.wait_for_url_contains('/dashboard')
+        self.page.locator('a.register').click()
+        self.page.wait_for_url('**/dashboard**')

@@ -251,13 +251,11 @@ seed-e2e-data: ## Seed known E2E test course and learner into the database
 	pip install -r tests/e2e/requirements.txt
 	python -m tests.e2e.seed.seed
 
-test-e2e: ## Run Selenium E2E tests (requires make run-lms and make run-cms)
+test-e2e: ## Run Playwright E2E tests (requires make run-lms and make run-cms)
 	pip install -r tests/e2e/requirements.txt
+	playwright install chromium
 	make seed-e2e-data
-	mkdir -p reports/screenshots
 	LMS_CFG="$(TUTOR_ROOT)/env/apps/openedx/config/lms.env.yml" \
 	LMS_BASE_URL="http://localhost:8000" \
 	CMS_BASE_URL="http://localhost:8001" \
-		pytest tests/e2e/tests/ -v -x \
-		--html=reports/e2e-report.html \
-		--self-contained-html
+		pytest tests/e2e/tests/ -v
