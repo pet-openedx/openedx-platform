@@ -18,6 +18,7 @@ COURSE_IMPORT_EXPORT_STORAGE = 'django.core.files.storage.FileSystemStorage'
 USER_TASKS_ARTIFACT_STORAGE = COURSE_IMPORT_EXPORT_STORAGE
 
 DEBUG = True
+ALLOWED_HOSTS = ['local.openedx.io', 'studio.local.openedx.io', 'localhost', '127.0.0.1', '[::1]']
 USE_I18N = True
 DEFAULT_TEMPLATE_ENGINE['OPTIONS']['debug'] = DEBUG
 SITE_NAME = 'localhost:8001'
@@ -53,6 +54,8 @@ LOGGING['handlers']['e2e_file'] = {
     'level': 'INFO',
 }
 LOGGING['root'] = {'handlers': ['console', 'e2e_file'], 'level': 'INFO'}
+LOGGING['loggers']['social_core'] = {'handlers': ['e2e_file'], 'level': 'DEBUG', 'propagate': False}
+LOGGING['loggers']['social_django'] = {'handlers': ['e2e_file'], 'level': 'DEBUG', 'propagate': False}
 
 ################################ EMAIL ########################################
 
@@ -290,7 +293,7 @@ SOCIAL_AUTH_EDX_OAUTH2_KEY = 'studio-sso-key'
 SOCIAL_AUTH_EDX_OAUTH2_SECRET = 'studio-sso-secret'  # in stage, prod would be high-entropy secret
 # routed internally server-to-server
 SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = ENV_TOKENS.get('SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT', 'http://127.0.0.1:8000')
-SOCIAL_AUTH_EDX_OAUTH2_PUBLIC_URL_ROOT = 'http://localhost:8000'
+SOCIAL_AUTH_EDX_OAUTH2_PUBLIC_URL_ROOT = 'http://local.openedx.io:8000'
 
 # Don't form the return redirect URL with HTTPS on devstack
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False

@@ -26,6 +26,7 @@ ORA2_FILEUPLOAD_BACKEND = 'django'
 
 DEBUG = True
 INTERNAL_IPS = ('127.0.0.1',)
+ALLOWED_HOSTS = ['local.openedx.io', 'studio.local.openedx.io', 'localhost', '127.0.0.1', '[::1]']
 
 USE_I18N = True
 DEFAULT_TEMPLATE_ENGINE['OPTIONS']['debug'] = True
@@ -83,6 +84,9 @@ LOGGING['handlers']['e2e_file'] = {
     'level': 'INFO',
 }
 LOGGING['root'] = {'handlers': ['console', 'e2e_file'], 'level': 'INFO'}
+LOGGING['loggers']['oauth2_provider'] = {'handlers': ['e2e_file'], 'level': 'DEBUG', 'propagate': False}
+LOGGING['loggers']['social_core'] = {'handlers': ['e2e_file'], 'level': 'DEBUG', 'propagate': False}
+LOGGING['loggers']['social_django'] = {'handlers': ['e2e_file'], 'level': 'DEBUG', 'propagate': False}
 
 ################################ EMAIL ########################################
 
@@ -491,6 +495,7 @@ if ENABLE_ENTERPRISE_INTEGRATION:
 # django-session-cookie middleware
 DCS_SESSION_COOKIE_SAMESITE = 'Lax'
 DCS_SESSION_COOKIE_SAMESITE_FORCE_ALL = True
+SESSION_COOKIE_SAMESITE = 'Lax'
 
 SITE_ID = 2
 

@@ -134,7 +134,12 @@ def insert_enrollment(engine, user_id, course_id, mode="audit"):
 
 def delete_user(engine, user_id):
     with engine.begin() as conn:
+        conn.execute(text("DELETE FROM oauth2_provider_idtoken WHERE user_id = :id"), {"id": user_id})
+        conn.execute(text("DELETE FROM oauth2_provider_refreshtoken WHERE user_id = :id"), {"id": user_id})
+        conn.execute(text("DELETE FROM oauth2_provider_accesstoken WHERE user_id = :id"), {"id": user_id})
+        conn.execute(text("DELETE FROM oauth2_provider_grant WHERE user_id = :id"), {"id": user_id})
         conn.execute(text("DELETE FROM student_courseenrollment WHERE user_id = :id"), {"id": user_id})
+        conn.execute(text("DELETE FROM student_anonymoususerid WHERE user_id = :id"), {"id": user_id})
         conn.execute(text("DELETE FROM auth_userprofile WHERE user_id = :id"), {"id": user_id})
         conn.execute(text("DELETE FROM auth_user WHERE id = :id"), {"id": user_id})
 
@@ -143,6 +148,43 @@ def delete_course_overview(engine, course_id):
     with engine.begin() as conn:
         conn.execute(text("DELETE FROM student_courseenrollment WHERE course_id = :id"), {"id": course_id})
         conn.execute(text("DELETE FROM course_overviews_courseoverview WHERE id = :id"), {"id": course_id})
+
+
+def ensure_cms_oauth2_app(engine):
+    app_table = _table(engine, "oauth2_provider_application")
+    access_table = _table(engine, "oauth_dispatch_applicationaccess")
+    now = datetime.utcnow()
+    app_row = {
+        "client_id": "studio-sso-key",
+        "client_secret": "studio-sso-secret",
+        "client_type": "confidential",
+        "authorization_grant_type": "authorization-code",
+        "redirect_uris": "http://studio.local.openedx.io:8001/complete/edx-oauth2/",
+        "name": "studio-sso-key",
+        "user_id": None,
+        "skip_authorization": True,
+        "created": now,
+        "updated": now,
+        "algorithm": "",
+    }
+    with engine.begin() as conn:
+        conn.execute(
+            mysql_insert(app_table).values(**app_row).on_duplicate_key_update(
+                redirect_uris=app_row["redirect_uris"],
+                skip_authorization=True,
+                updated=now,
+            )
+        )
+        app_id = conn.execute(
+            text("SELECT id FROM oauth2_provider_application WHERE client_id = 'studio-sso-key'")
+        ).scalar()
+        conn.execute(
+            mysql_insert(access_table).values(
+                application_id=app_id,
+                scopes="user_id,profile,email",
+                filters=None,
+            ).on_duplicate_key_update(scopes="user_id,profile,email")
+        )
 
 
 def make_user(user_id, username, email, password):

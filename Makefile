@@ -256,6 +256,6 @@ test-e2e: ## Run Playwright E2E tests (requires make run-lms and make run-cms)
 	playwright install chromium
 	make seed-e2e-data
 	LMS_CFG="$(TUTOR_ROOT)/env/apps/openedx/config/lms.env.yml" \
-	LMS_BASE_URL="http://localhost:8000" \
-	CMS_BASE_URL="http://localhost:8001" \
+	LMS_BASE_URL="http://local.openedx.io:8000" \
+	CMS_BASE_URL="http://studio.local.openedx.io:8001" \
 		pytest tests/e2e/tests/ -v
