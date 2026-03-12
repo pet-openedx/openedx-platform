@@ -138,6 +138,7 @@ def delete_user(engine, user_id):
         conn.execute(text("DELETE FROM oauth2_provider_refreshtoken WHERE user_id = :id"), {"id": user_id})
         conn.execute(text("DELETE FROM oauth2_provider_accesstoken WHERE user_id = :id"), {"id": user_id})
         conn.execute(text("DELETE FROM oauth2_provider_grant WHERE user_id = :id"), {"id": user_id})
+        conn.execute(text("DELETE FROM social_auth_usersocialauth WHERE user_id = :id"), {"id": user_id})
         conn.execute(text("DELETE FROM student_courseenrollment WHERE user_id = :id"), {"id": user_id})
         conn.execute(text("DELETE FROM student_anonymoususerid WHERE user_id = :id"), {"id": user_id})
         conn.execute(text("DELETE FROM auth_userprofile WHERE user_id = :id"), {"id": user_id})

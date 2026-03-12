@@ -3,7 +3,7 @@ from pages.base_page import BasePage
 
 class CourseOutlinePage(BasePage):
     def is_loaded(self):
-        self.page.locator('.wrapper-mast').wait_for()
+        self.page.wait_for_url('**/course/**')
 
     def get_current_course_key(self):
         parts = self.page.url.split('/course/')

@@ -259,3 +259,12 @@ test-e2e: ## Run Playwright E2E tests (requires make run-lms and make run-cms)
 	LMS_BASE_URL="http://local.openedx.io:8000" \
 	CMS_BASE_URL="http://studio.local.openedx.io:8001" \
 		pytest tests/e2e/tests/ -v
+
+test-e2e-watch: ## Run Playwright E2E tests in headed mode with 1s slowmo (requires make run-lms and make run-cms)
+	pip install -r tests/e2e/requirements.txt
+	playwright install chromium
+	make seed-e2e-data
+	LMS_CFG="$(TUTOR_ROOT)/env/apps/openedx/config/lms.env.yml" \
+	LMS_BASE_URL="http://local.openedx.io:8000" \
+	CMS_BASE_URL="http://studio.local.openedx.io:8001" \
+		pytest tests/e2e/tests/ -v --headed --slowmo=1000

@@ -7,6 +7,10 @@ class CmsLoginPage(BasePage):
         self.cms_base_url = cms_base_url
 
     def login(self, email, password):
+        self.page.route(
+            lambda url: "localhost:2001" in url,
+            lambda route: route.fulfill(status=200, content_type="text/html", body="<html><body></body></html>")
+        )
         self.page.goto(self.cms_base_url + '/home')
         self.page.locator('#login-email').fill(email)
         self.page.locator('#login-password').fill(password)
